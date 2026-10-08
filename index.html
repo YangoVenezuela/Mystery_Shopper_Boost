@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Mystery Shopper · Registro de viajes</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#f6f6f8;color:#202124;font-family:Arial,sans-serif}
+    header{background:#fff;border-bottom:2px solid #ff0033;padding:24px max(24px,4vw);display:flex;gap:24px;align-items:center}
+    header img{width:115px;height:auto}header h1{margin:0;font-size:25px}.logout{margin-left:auto}
+    main{padding:28px 4vw}.controls{display:flex;align-items:end;flex-wrap:wrap;gap:16px;background:#fff;border-radius:15px;padding:20px}
+    label{display:grid;gap:8px;font-size:13px;font-weight:bold}input,button,select{font:inherit;border:1px solid #d8d8de;border-radius:8px;padding:11px;background:#fff;min-height:42px}
+    button,.button{cursor:pointer}.primary,.button{background:#ff0033;color:#fff;border-color:#ff0033;font-weight:bold}.button{display:inline-block;border-radius:8px;padding:12px 16px;text-decoration:none}
+    button:disabled{opacity:.55;cursor:wait}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:22px 0}.card{background:#fff;padding:23px;border-radius:15px}.card:first-child{background:#ff0033;color:#fff}.card p{margin:0 0 10px;font-size:14px}.card strong{font-size:38px}
+    .panel{background:#fff;border-radius:15px;overflow:hidden;margin-top:24px}.tabletitle{padding:22px;display:flex;justify-content:space-between;gap:12px;align-items:center}.tabletitle h2{font-size:19px;margin:0}.scroll{overflow:auto;max-height:65vh}
+    table{border-collapse:collapse;font-size:13px;min-width:1600px;width:100%}th,td{text-align:left;padding:13px 15px;border-bottom:1px solid #eee;max-width:280px;white-space:normal;overflow-wrap:anywhere}th{position:sticky;top:0;background:#fff0f3;color:#555;z-index:1}tbody tr:hover{background:#fafafa}
+    a{color:#d6002b}.badge{display:inline-block;background:#fff0f3;color:#bf0030;border-radius:20px;padding:6px 10px;white-space:nowrap}#status,.note{font-size:13px;color:#65656d;line-height:1.6}.error{color:#b00020!important}#empty{padding:30px;display:none;text-align:center;color:#666}.name-preview{background:#f6f6f8;border-radius:8px;padding:12px;word-break:break-word}
+    .gate{position:fixed;inset:0;background:#f6f6f8;display:grid;place-items:center;z-index:20}.gate form{background:#fff;padding:35px;border-radius:18px;width:min(370px,86vw)}.gate img{width:110px}.gate h1{font-size:23px}.gate input,.gate button{width:100%;margin-top:12px}.hidden{display:none!important}
+    @media(max-width:650px){header h1{font-size:19px}.cards{grid-template-columns:1fr 1fr}main{padding:20px}.controls label{flex:1}.tabletitle{flex-wrap:wrap}}
+  </style>
+</head>
+<body>
+  <div id="gate" class="gate">
+    <form id="login-form">
+      <img src="yango_logo.png" alt="Yango">
+      <h1>Mystery Shopper</h1><p>Registro de viajes</p>
+      <label>Contraseña<input id="password" type="password" autocomplete="current-password" required></label>
+      <button class="primary">Ingresar</button><p id="login-error" class="error" role="status"></p>
+    </form>
+  </div>
+  <div id="app" class="hidden">
+    <header><img src="yango_logo.png" alt="Yango"><h1>Mystery Shopper · Registro de viajes</h1><button id="logout" class="logout">Salir</button></header>
+    <main>
+      <section class="controls" aria-label="Filtro de fechas">
+        <label>Desde<input id="start" type="date"></label><label>Hasta<input id="end" type="date"></label>
+        <button id="all">Todas las fechas</button><button id="refresh" class="primary">Actualizar datos</button>
+      </section>
+      <p id="status" role="status" aria-live="polite">Cargando la pestaña Questions…</p>
+      <section class="cards"><div class="card"><p>Total de viajes</p><strong id="total">—</strong></div><div class="card"><p>Moto</p><strong id="moto">—</strong></div><div class="card"><p>Economy</p><strong id="economy">—</strong></div><div class="card"><p>Confort</p><strong id="comfort">—</strong></div></section>
+      <section class="panel"><div class="tabletitle"><h2>Detalle de los viajes</h2><span id="range"></span><button id="download" disabled>Descargar CSV</button></div><div class="scroll"><table><thead><tr id="head"></tr></thead><tbody id="body"></tbody></table></div><div id="empty">No hay viajes en estas fechas.</div></section>
+      <section class="panel">
+        <div class="tabletitle"><h2>Facturas y comprobantes de pago</h2><a class="button" href="https://drive.google.com/drive/folders/16L6tc-CiruDdhPhzKzne40lk_HDkJXMV" target="_blank" rel="noopener noreferrer">Abrir carpeta de Drive</a></div>
+        <div class="controls">
+          <label>Tipo<select id="file-kind"><option>Factura</option><option>Comprobante de pago</option></select></label>
+          <label>Persona<input id="file-person" maxlength="80" placeholder="Nombre y apellido"></label>
+          <label>Mes<input id="file-month" type="month"></label>
+          <label>Referencia opcional<input id="file-label" maxlength="80" placeholder="Ej.: primera quincena"></label>
+        </div>
+        <div style="padding:0 22px 22px"><p>Renombra el archivo antes de subirlo a Drive con este nombre:</p><p id="file-name" class="name-preview">Selecciona los datos para generar el nombre.</p><button id="copy-name">Copiar nombre</button><p class="note">En GitHub Pages la carga se realiza directamente en la carpeta de Drive. Pulsa “Abrir carpeta de Drive”, selecciona Nuevo → Subir archivo y usa el nombre generado arriba.</p></div>
+      </section>
+      <p class="note">Fuente pública: pestaña Questions. La contraseña de esta página es una barrera visual y puede verse o eludirse revisando el código del sitio.</p>
+    </main>
+  </div>
+  <script>
+    const PASSWORD='Boost2026';
+    const SHEET='1RgmSfh7CrYIGdUGmKTznljJzl90f_Fw_5n2W9otxR_0';
+    const fields=[['timestamp','Timestamp','Fecha y hora'],['email','Email Address','Correo'],['origin','Punto A','Origen'],['destination','Punto B','Destino'],['vehicle','Tipo de vehículo','Tarifa'],['yummy_price','Precio que te marca en Yummy','Yummy (USD)'],['ridery_price','Precio que te marca en Ridery','Ridery (USD)'],['yango_price','Precio que te marca en Yango','Yango (USD)'],['negotiated','¿El conductor te negoció el precio?','¿Negoció?'],['final_usd','Precio final negociado con el conductor en $','Final (USD)'],['comments','Si tienes algún comentario o feedback sobre el uso de la plataforma, déjalo a continuación','Comentarios']];
+    const $=id=>document.getElementById(id);let rows=[],visible=[],initialized=false;
+    function unlock(){sessionStorage.setItem('boost-access','yes');$('gate').classList.add('hidden');$('app').classList.remove('hidden');load()}
+    $('login-form').onsubmit=e=>{e.preventDefault();if($('password').value===PASSWORD)unlock();else $('login-error').textContent='Contraseña incorrecta.'};
+    $('logout').onclick=()=>{sessionStorage.removeItem('boost-access');location.reload()};
+    function normalize(s){return String(s??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase()}
+    function gdate(v){const m=String(v??'').match(/^Date\((\d+),(\d+),(\d+)(?:,(\d+),(\d+),(\d+))?\)$/);if(!m)return null;const p=n=>String(Number(n||0)).padStart(2,'0');return `${m[1]}-${p(+m[2]+1)}-${p(m[3])}T${p(m[4])}:${p(m[5])}:${p(m[6])}`}
+    function callback(payload){try{if(payload.status!=='ok')throw Error('Google Sheets no devolvió datos.');const labels=payload.table.cols.map(c=>c.label);const at=label=>labels.indexOf(label);rows=payload.table.rows.map((r,i)=>{const value=label=>at(label)>=0?(r.c[at(label)]?.v??''):'';const timestamp=gdate(value('Timestamp'));const raw=normalize(value('Tipo de vehículo'));const vehicle=raw==='moto'?'Moto':(['economico','economy'].includes(raw)?'Economy':(['comfort','confort'].includes(raw)?'Confort':'Otra / sin tarifa'));const o={timestamp,date:timestamp?.slice(0,10),vehicle,source_row:i+2};for(const [key,label] of fields)if(!['timestamp','vehicle'].includes(key))o[key]=value(label);return o}).filter(r=>r.timestamp).sort((a,b)=>b.timestamp.localeCompare(a.timestamp));finishLoad()}catch(e){fail(e.message)}}
+    function load(){const old=document.getElementById('sheet-script');if(old)old.remove();$('refresh').disabled=true;$('status').textContent='Cargando la pestaña Questions…';const script=document.createElement('script');script.id='sheet-script';script.onerror=()=>fail('No se pudo leer Google Sheets.');script.src=`https://docs.google.com/spreadsheets/d/${SHEET}/gviz/tq?tqx=responseHandler:callback&sheet=Questions&cache=${Date.now()}`;document.head.append(script)}
+    function fail(message){$('status').className='error';$('status').textContent=message;$('refresh').disabled=false}
+    function finishLoad(){if(!initialized&&rows.length){const dates=rows.map(r=>r.date).sort();$('start').value=dates[0];$('end').value=dates.at(-1);initialized=true}$('status').className='';$('status').textContent=`${rows.length} registros cargados · America/Caracas`;render();$('refresh').disabled=false}
+    function cell(tr,value){const td=document.createElement('td');td.textContent=value===''||value==null?'—':String(value);tr.append(td);return td}
+    function render(){const start=$('start').value,end=$('end').value;if(start&&end&&start>end){fail('La fecha inicial debe ser anterior o igual a la final.');return}visible=rows.filter(r=>(!start||r.date>=start)&&(!end||r.date<=end));$('total').textContent=visible.length;$('moto').textContent=visible.filter(r=>r.vehicle==='Moto').length;$('economy').textContent=visible.filter(r=>r.vehicle==='Economy').length;$('comfort').textContent=visible.filter(r=>r.vehicle==='Confort').length;$('range').textContent=`${visible.length} registros · ${start||'Inicio'} → ${end||'Fin'}`;const frag=document.createDocumentFragment();for(const row of visible){const tr=document.createElement('tr');for(const [key,,label] of fields){let v=row[key];if(key==='timestamp')v=v.replace('T',' ');const td=cell(tr,v);if(key==='vehicle'){const b=document.createElement('span');b.className='badge';b.textContent=v;td.replaceChildren(b)}}frag.append(tr)}$('body').replaceChildren(frag);$('empty').style.display=visible.length?'none':'block';$('download').disabled=!visible.length}
+    $('head').replaceChildren(...fields.map(f=>{const th=document.createElement('th');th.textContent=f[2];return th}));$('start').onchange=render;$('end').onchange=render;$('refresh').onclick=load;$('all').onclick=()=>{$('start').value='';$('end').value='';render()};
+    $('download').onclick=()=>{const csv=v=>'"'+String(v??'').replace(/^[=+@-]/,"'$&").replace(/"/g,'""')+'"';const lines=[fields.map(f=>csv(f[2])).join(','),...visible.map(r=>fields.map(f=>csv(r[f[0]])).join(','))];const u=URL.createObjectURL(new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv'}));const a=document.createElement('a');a.href=u;a.download='viajes_yango.csv';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)};
+    function updateName(){const person=$('file-person').value.trim()||'Nombre';const month=$('file-month').value||'AAAA-MM';const label=$('file-label').value.trim();$('file-name').textContent=`${month} · ${person} · ${$('file-kind').value}${label?' · '+label:''}.pdf`}
+    for(const id of ['file-person','file-month','file-label','file-kind'])$(id).oninput=updateName;$('file-month').value=new Date().toLocaleDateString('en-CA',{timeZone:'America/Caracas'}).slice(0,7);updateName();$('copy-name').onclick=async()=>{await navigator.clipboard.writeText($('file-name').textContent);$('copy-name').textContent='Copiado';setTimeout(()=>$('copy-name').textContent='Copiar nombre',1200)};
+    if(sessionStorage.getItem('boost-access')==='yes')unlock();
+  </script>
+</body></html>
